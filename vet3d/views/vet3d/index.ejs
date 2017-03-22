@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <% include ../header %>
+
+    <body onload="init();" >
+
+        <script src="/public/javascripts/three.js"></script>
+        <script src="/public/javascripts/fonts/helvetiker_regular.typeface.js"></script>
+        <script src="/public/javascripts/Geo.js"></script>
+        <script src="/public/javascripts/novo_init.js"></script>
+        <script src="/public/javascripts/vsocket.js"></script>
+        <!--<script src="/public/javascripts/init_gt.js"></script>-->
+        <script src="/public/javascripts/Exp.js"></script>
+        <link href="/public/stylesheets/style.css" rel="stylesheet" type="text/css" />
+        <% include ../erros/f_erro %>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+                function init(argument) {
+                    var entradaVetores = document.getElementById('v1');
+                    var entradaExpressoes = document.getElementById('exp1');
+                    var saidaVetores = document.getElementById('vetores');
+                    var entradaDirecaoCamera = document.getElementById('dc');
+                    var entradaPosicaoCamera = document.getElementById('pc');
+                    var canvasDiv = document.getElementById('dCanvas');
+                    
+                    VET3D.configurar(entradaVetores, entradaExpressoes, saidaVetores, entradaDirecaoCamera, entradaPosicaoCamera, canvasDiv);
+                    VSOCKET.conectar(function() {
+                        VSOCKET.listarVetores( '<%- usuario._id %>' , '<%- idCalc  %>' , function (msg){
+                            for (i = 0; i < msg.vetores.length; i++) {
+                                VET3D.adicionarVetor(msg.vetores[i]);
+                            }
+                        });
+                    });
+                    
+                    
+                }
+
+        </script>
+
+        <section>
+
+            <%include ../barra_usuario.ejs%>
+            <div  id="left">
+
+                <button onclick="VET3D.alternarContrCamera()">Camera</button>
+
+                <div id="contrCamera" title="Camera"> 
+                    <div><label>Posição: </label><input id="pc" type="text" onchange="VET3D.atualizaCamera()" /></div>
+                    <div><label>Direção: </label><input id="dc" type="text" onchange="VET3D.atualizarDirCamera()"/></div>
+                    <!-- <div><label>Z: </label><input id="cz" type="text" onchange="atualizaCamera()"/></div> -->
+                </div>
+                <label >Vetor:</label>
+                <input type="text" id="v1" placeholder="a, b, c">
+
+                <button onclick="VET3D.criarVetor();">+</button>
+                <br/>
+
+                <div>
+                    <label>Expr.: </label>
+                    <input type="text" id="exp1" placeholder="v1 + v2">
+                    <button onclick="VET3D.resolver();">=</button>
+
+                </div>
+
+                <div id="vetores"></div>
+
+                <div id="edt_opcoes">
+                    <fieldset >
+                         <legend>Opções do vetor</legend>   
+                        <label for="corTexto">Cor do Texto: 
+                        </label> 
+                        <input id="corTexto" type="text" name="corTexto">
+                        <label for="corLinha">Cor da Linha: 
+                        </label> 
+                        <input id="corLinha" type="text" name="corLinha">
+                        <label for="tipoLinha">Tipo da Linha: 
+                        </label> 
+                        <input id="tipoLinha" type="text" name="tipoLinha">
+                        <div><input type="button" value="Salvar" onclick="VET3D.salvarOpcoes()"></div>
+                    </fieldset>
+                    <input type="hidden" id="idxVetEdit">
+                </div>
+
+            </div>
+            <div id="content">
+                <div id="dCanvas"> 
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <% include ../footer %>
+    </body>
+</html>

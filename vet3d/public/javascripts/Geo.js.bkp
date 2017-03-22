@@ -1,0 +1,206 @@
+var GEO = GEO || {};
+var ORIGEM;
+var vectorOrigem;
+GEO.init = function() {
+    vectorOrigem = new THREE.Vector3(0, 0, 0);
+    ORIGEM = new GEO.Ponto3D(0, 0, 0);
+    GEO.Vetor3D.prototype = new THREE.Line();
+    this.CANONICAL_I = new GEO.Vetor3D(new GEO.Ponto3D(1, 0, 0));
+    this.CANONICAL_J = new GEO.Vetor3D(new GEO.Ponto3D(0, 1, 0));
+    this.CANONICAL_K = new GEO.Vetor3D(new GEO.Ponto3D(0, 0, 1));
+
+
+};
+
+
+/**Define o objeto Ponto
+ * @argument {Integer} x 
+ * @argument {Integer} y 
+ * @argument {Integer} z */
+GEO.Ponto3D = function(x, y, z) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+
+    this.getX = function() {
+        return this.x;
+    };
+
+    this.getY = function() {
+        return this.y;
+    };
+
+    this.getZ = function() {
+        return this.z;
+    };
+    this.toString = function() {
+        return "[" + x + ", " + y + ", " + z + "]";
+    };
+
+};
+/**
+ * Define o objeto Vetor.
+ @argument {Ponto3D} pontoExtremidade ponto que define a extremidade do vetor
+ @argument {Ponto3D} pontoOrigem ponto que define a origem, caso não informado, é usado o ponto (0, 0, 0).
+ * */
+GEO.Vetor3D = function(pontoExtremidade, pontoOrigem) {
+    this.extremidade = pontoExtremidade;
+    this.geometry = new THREE.Geometry();
+    if (pontoOrigem === undefined) {
+        this.origem = ORIGEM;
+        this.geometry.vertices.push(vectorOrigem);
+    } else {
+        this.origem = pontoOrigem;
+        this.geometry.vertices.push(new THREE.Vector3(this.origem.getX(), this.origem.getY(), this.origem.getZ()));
+    }
+    this.vector = new THREE.Vector3(this.extremidade.getX(), this.extremidade.getY(), this.extremidade.getZ());
+    this.x = this.extremidade.getX() - this.origem.getX() || 0;
+    this.y = this.extremidade.getY() - this.origem.getY() || 0;
+    this.z = this.extremidade.getZ() - this.origem.getZ() || 0;
+
+   /* var lx, lx2 = this.extremidade.getX();
+    var ly, ly2 = this.extremidade.getY();
+    var lz, lz2 = this.extremidade.getZ();
+    var MAIOR = 20;
+    var MENOR = 20;
+    if (this.x > this.y && this.x > this.z) {
+        // X maior
+        lx = this.extremidade.getX() - MAIOR;
+        if (this.y < this.z) {
+            // Z menor
+            lz = this.extremidade.getZ() - MENOR;
+            lz2 = this.extremidade.getZ() + MENOR;
+        } else {
+            // y menor
+            ly = this.extremidade.getY() - MENOR;
+            ly2 = this.extremidade.getY() + MENOR;
+        }
+    } else if (this.y > this.z) {
+        // Y Maior
+        ly = this.extremidade.getY() - MAIOR;
+        if (this.x < this.z) {
+            // X menor
+            lx = this.extremidade.getX() - MENOR;
+            lx2 = this.extremidade.getX() + MENOR;
+        } else {
+            // Z menor
+            lz = this.extremidade.getZ() - MENOR;
+            lz2 = this.extremidade.getZ() + MENOR;
+        }
+    } else {
+        // Z maior 
+        lz = this.extremidade.getZ() - MAIOR;
+        if (this.x < this.y) {
+            // X menor
+            lx = this.extremidade.getX() - MENOR;
+            lx2 = this.extremidade.getX() + MENOR;
+        } else {
+            // Y menor
+            ly = this.extremidade.getY() - MENOR;
+            ly2 = this.extremidade.getY() + MENOR;
+        }
+    }
+    var vAux1 = new THREE.Vector3(lx, ly, lz);
+    var vAux2 = new THREE.Vector3(lx2, ly2, lz2);
+    console.log("this(" + this.extremidade.getX() + ", " + this.extremidade.getY() + ", " + this.extremidade.getZ() + ")");
+    console.log("L1(" + lx + ", " + ly + ", " + lz + ")");
+    console.log("L2(" + vAux2.x + ", " + vAux2.y + ", " +vAux2.z) + ")";
+*/
+    this.geometry.vertices.push(this.vector);
+//    var vAux1 = this.vector.clone().multiplyScalar(0.9).applyAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 16);
+//    var vAux2 = this.vector.clone().multiplyScalar(0.9).applyAxisAngle(new THREE.Vector3(0, 0, 1), -Math.PI / 16);
+//    var vAux = divivirEscalar(this, 1.1);
+  /*  this.geometry.vertices.push(vAux1);
+    this.geometry.vertices.push(this.vector);
+    this.geometry.vertices.push(vAux2);
+    console.log("Vertices: " + this.geometry.vertices.length);*/
+    
+//    this.geometry.vertices.push(new THREE.Vector3(x, y - 10, z));
+//    var seta = subtrair(this, new Vetor3D(10, 10, 10)).vector;
+//    this.geometry.vertices.push(this.vector);
+
+
+    this.getX = function() {
+        return this.x;
+    };
+
+    this.getY = function() {
+        return this.y;
+    };
+
+    this.getZ = function() {
+        return this.z;
+    };
+
+
+    this.getModulo = function() {
+        return Math.pow(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2), 0.5);
+    };
+
+
+    this.getVersor = function() {
+        return GEO.divivirEscalar(this, this.getModulo());
+    };
+
+    this.getInverso = function() {
+        return new Vetor3D(new GEO.Ponto3D(-x, -y, -z));
+    };
+    this.toString = function() {
+        return "[" + x + ", " + y + ", " + z + "]";
+    };
+};
+
+
+
+
+// static
+GEO.somar = function(vetorA, vetorB) {
+    return new GEO.Vetor3D(new GEO.Ponto3D(vetorA.x + vetorB.x, vetorA.y + vetorB.y, vetorA.z + vetorB.z));
+}
+
+GEO.subtrair = function(vetorA, vetorB) {
+    return new GEO.Vetor3D(new GEO.Ponto3D(vetorA.x - vetorB.x, vetorA.y - vetorB.y, vetorA.z - vetorB.z));
+}
+
+GEO.multiplicarEscalar = function(vetorA, escalar) {
+    return new GEO.Vetor3D(new GEO.Ponto3D(vetorA.x * escalar, vetorA.y * escalar, vetorA.z * escalar));
+}
+
+GEO.divivirEscalar = function(vetorA, escalar) {
+    return new GEO.Vetor3D(new GEO.Ponto3D(vetorA.x / escalar, vetorA.y / escalar, vetorA.z / escalar));
+}
+
+GEO.produtoEscalar = function(vetorA, vetorB) {
+    return (vetorA.x * vetorB.x) + (vetorA.y * vetorB.y) + (vetorA.z * vetorB.z);
+}
+
+GEO.produtoMisto = function(vetorA, vetorB, vetorC) {
+    return GEO.produtoEscalar(vetorC, GEO.produtoVetorial(vetorA, vetorB));
+}
+
+GEO.produtoVetorial = function(vetorA, vetorB) {
+    var v1 = GEO.multiplicarEscalar(GEO.CANONICAL_I, vetorA.y * vetorB.z);
+    var v2 = GEO.multiplicarEscalar(GEO.CANONICAL_J, vetorA.z * vetorB.x);
+    var v3 = GEO.multiplicarEscalar(GEO.CANONICAL_K, vetorA.x * vetorB.y);
+    var diagonalPrincipal = GEO.somar(v3, GEO.somar(v1, v2));
+    v1 = GEO.multiplicarEscalar(GEO.CANONICAL_K, vetorA.y * vetorB.x);
+    v2 = GEO.multiplicarEscalar(GEO.CANONICAL_J, vetorA.x * vetorB.z);
+    v3 = GEO.multiplicarEscalar(GEO.CANONICAL_I, vetorA.z * vetorB.y);
+    var diagonalSecundaria = GEO.somar(v3, GEO.somar(v1, v2));
+    return GEO.subtrair(diagonalPrincipal, diagonalSecundaria);
+}
+
+
+GEO.anguloInterno = function(vetorA, vetorB) {
+    return (Math.acos(GEO.produtoEscalar(vetorA, vetorB) / (vetorA.getModulo() * vetorB.getModulo())) / Math.PI) * 180;
+}
+GEO.anguloInternoPlanoReta = function(vetorA, vetorB) {
+    return (Math.asin(GEO.produtoEscalar(vetorA, vetorB) / (vetorA.getModulo() * vetorB.getModulo())) / Math.PI) * 180;
+}
+
+GEO.projecao = function(vetorA, vetorB) {
+    var pc = GEO.produtoEscalar(vetorA, vetorB);
+    var pb = GEO.produtoEscalar(vetorB, vetorB);
+    return GEO.multiplicarEscalar(vetorB, pc/pb);
+}
+

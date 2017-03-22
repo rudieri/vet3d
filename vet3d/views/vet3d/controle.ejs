@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <% include ../header %>
+
+    <body>
+        <link href="/public/stylesheets/style.css" rel="stylesheet" type="text/css" />
+        <% include ../erros/f_erro %>
+        <%include ../barra_usuario.ejs%>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% usuario.calculos.forEach(function(calculo, index){ %>
+                <tr>
+                    <td><%- calculo.nome %></td>
+                    <td><%- calculo.descricao %></td>
+                    <td><a href="/vetores/desenhar/<%- calculo._id %>">Abrir</a></td>
+
+                </tr>
+                <%	}) %>
+            </tbody>
+        </table>
+
+        <% include ../footer %>
+    </body>
+</html>

@@ -1,0 +1,19 @@
+#! /bin/bash
+MONGO_PATH=/opt/aplicativos/mongodb-linux-x86_64-2.4.6/bin/
+MONGO_DATA=/opt/aplicativos/mongodb-linux-x86_64-2.4.6/bin/data/db/
+APP_PATH=`pwd`
+
+pidM=`pidof mongod`
+if [[ $pidM =~ "[0-9]+" ]]; then
+	echo "Mongo já está rodando..."
+else
+	echo "Iniciando mongo em segundo plano..."
+	cd "$MONGO_PATH"
+	echo `pwd`
+	./mongod --dbpath $MONGO_DATA&
+	echo "Mongo iniciado"
+	sleep 1
+fi
+cd $APP_PATH
+echo "Iniciando Node App"
+node vet3d.js

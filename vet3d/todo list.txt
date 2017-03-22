@@ -1,0 +1,27 @@
+ 
+ - - - - - - - - - - - - - - - - - - - -  TODO LIST - - - - - - - - - - - - - - - - - - - - - - - 
+
+0 - Criar um contrutor para representar o objeto Resultado, sendo que o mesmo herda o objeto Vetor3D. OK
+1 - Criar a opção de salvar e remover os resultados das operações, na mesma função usada para salvar os vetores. OK
+2 - Listar tanto os vetores quanto os resultados das operações. OK
+3 - Quando listar os vetores, adicionar automaticamente as linhas auxiliares. OK
+4 - Adicionar novos atributos tanto nos vetores quanto nos resultados. 
+	Atributos: 
+	* Cor da linha;
+	* Tipo da linha;
+	* Mostrar rótulo do nome;
+	* Tamanho do rótulo nome;
+	* Cor do rótulo do nome;
+	* Posição do rótulo do nome: Extremidade, Meio, Origem;
+	* Mostrar linhas auxiliares (apenas para resultados);
+
+
+5 - Criar na tela opção para alterar os atributos citados acima.
+6 - Opção para alterar o nome dos vetores.
+7 - Criar um botão "Redefinir ângulo da câmera".
+8 - Editor gráfico de expressões:
+	* Primeiro seleciona-se uma operação (combobox);
+	* Dependendo da operação selecionada monta as opções para a entrada dos vetores ou escalares.
+		> Os vetores já salvos podem ser escolhidos em um combobox ou pode ser informado um novo vetor (o combobox deve ser editável).
+		> Os escalares não informados em um campo de texto normal.
+

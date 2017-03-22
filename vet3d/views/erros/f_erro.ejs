@@ -1,0 +1,15 @@
+<% if(erro !== undefined){ %>
+	<div id="f_erro">
+			<%- erro.msg %>
+	</div>
+	<script type="text/javascript">
+		var divErro = document.getElementById('f_erro');
+		setTimeout(function() {
+			divErro.style['display']='none';
+			
+		}, <%- erro.duracao*1000 %>);
+			divErro.style['display']='block';
+			// divErro.style.setAttribute('display','block');
+	</script>
+	
+<% } %>

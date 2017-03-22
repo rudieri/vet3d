@@ -1,0 +1,371 @@
+function init (argument) {
+        		var entradaVetores = document.getElementById('v1');
+				var entradaExpressoes = document.getElementById('exp1');
+				var saidaVetores = document.getElementById('vetores');
+				var entradaDirecaoCamera = document.getElementById('dc');
+				var entradaPosicaoCamera = document.getElementById('pc');
+				var canvasDiv = document.getElementById('dCanvas');
+				VET3D.configurar(entradaVetores, entradaExpressoes, saidaVetores, entradaDirecaoCamera, entradaPosicaoCamera, canvasDiv);
+        	}
+
+
+
+
+<script type="text/javascript">
+        		
+
+    			var LARGURA = window.innerWidth - 40;
+        		var ALTURA = window.innerHeight - 60;
+        		var camera, scene, renderer;
+
+
+
+        		this.enabled = true;
+
+				// internals
+
+				var scope = this;
+				var vector = new THREE.Vector3();
+
+				var STATE = { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2 };
+				var state = STATE.NONE;
+
+				var center = new THREE.Vector3();
+				var normalMatrix = new THREE.Matrix3();
+				var pointer = new THREE.Vector2();
+				var pointerOld = new THREE.Vector2();
+
+
+				var dCanvas;
+
+        		
+        		var htmlDirCam, htmlPosCam;
+	        	
+
+        		function init(){
+
+        			GEO.init();
+
+        			//Cena
+        			scene = new THREE.Scene();
+        			// Camera
+            		camera = new THREE.PerspectiveCamera(75, LARGURA / ALTURA, 1, 10000);
+                	camera.position.z = 40;
+                	camera.position.y = 5;
+                	camera.position.x = 5;
+
+        			// Renderer
+	                renderer = new THREE.CanvasRenderer();
+	                renderer.setSize(LARGURA, ALTURA);
+	                // Aplica no HTML
+	                dCanvas = document.getElementById("dCanvas");
+	                dCanvas.appendChild(renderer.domElement);
+	                
+	                htmlDirCam = document.getElementById("dc");
+	                htmlPosCam = document.getElementById("pc");
+
+	                htmlPosCam.value = "("+camera.position.x  + ", " + camera.position.y + ", " + camera.position.z+")";
+	                htmlDirCam.value = "(0,0,0)";
+	                
+
+                	
+                
+
+                	var planoXY = new GEO.Grade( 300, 4, "xz" );
+					scene.add(planoXY);
+
+
+					// var planoYZ = new GEO.Grade( 300, 4, "yz" );
+					// scene.add(planoYZ);
+
+	                 var xMaterial = new THREE.LineDashedMaterial({ color: 0xff0000, dashSize:12 });
+	                 var yMaterial = new THREE.LineDashedMaterial({ color: 0x0000ff, dashSize:12 });
+	                 var zMaterial = new THREE.LineDashedMaterial({ color: 0x00ff00, dashSize:12 });
+
+	                 var vxP = new GEO.Vetor3D(new GEO.Ponto3D(300, 0 ,0));
+	                 vxP.setNome("(+300)");
+	                 var vxN = new GEO.Vetor3D(new GEO.Ponto3D(-300, 0 ,0));
+	                 vxN.setNome("X (-300)");
+
+	                 var vyP = new GEO.Vetor3D(new GEO.Ponto3D(0, 300 ,0));
+	                 vyP.setNome("(+300)");
+	                 var vyN = new GEO.Vetor3D(new GEO.Ponto3D(0, -300 ,0));
+	                 vyN.setNome("Y (-300)");
+
+	                 var vzP = new GEO.Vetor3D(new GEO.Ponto3D(0, 0, 300));
+	                 vzP.setNome("(+300)");
+	                 var vzN = new GEO.Vetor3D(new GEO.Ponto3D(0, 0, -300));
+	                 vzN.setNome("Z (-300)");
+
+	                 vxP.addToScene(scene, xMaterial);
+	                 vxN.addToScene(scene, xMaterial);
+	                 vyP.addToScene(scene, yMaterial);
+	                 vyN.addToScene(scene, yMaterial);
+	                 vzP.addToScene(scene, zMaterial);
+	                 vzN.addToScene(scene, zMaterial);
+
+
+
+	                var passo = 1;
+            		
+            		window.addEventListener("keydown", function(evt) {
+	                    if (evt.shiftKey) {
+	                        if (evt.keyCode === 87) {
+	                        	camera.position.y += passo;
+	                            // cy.value = parseInt(cy.value) + passo;
+	                        } else if (evt.keyCode === 83) {
+	                        	camera.position.y -= passo;
+	                            // cy.value=parseInt(cy.value) - passo;
+	                        } else {
+	                            //console.log("Key" + evt.keyCode);
+	                            return;
+	                        }
+	                    } else {
+	                        if (evt.keyCode === 87) {
+	                        	camera.position.z += passo;
+	                            // cz.value=parseInt(cz.value) + passo;
+	                        } else if (evt.keyCode === 83) {
+	                        	camera.position.z -= passo;
+	                            // cz.value=parseInt(cz.value) - passo;
+	                        } else if (evt.keyCode === 65) {
+	                        	camera.position.x -= passo;
+	                            // cx.value=parseInt(cx.value) - passo;
+	                        } else if (evt.keyCode === 68) {
+	                        	camera.position.x += passo;
+	                            // cx.value=parseInt(cx.value) + passo;
+	                        } else {
+	                           // console.log("Key" + evt.keyCode);
+	                            return;
+	                        }
+	                    }
+	                    atualizaInfoCamera();
+	                   
+	                    //console.log("Camera: [" + camera.position.x + ", " + camera.position.y + ", " + camera.position.z + "]");
+
+                	}, false);
+
+					dCanvas.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
+					dCanvas.addEventListener( 'mousedown', onMouseDown, false );
+					dCanvas.addEventListener( 'mousewheel', onMouseWheel, false );
+					dCanvas.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
+	
+					animate();
+        		}
+
+	        	function animate() {
+
+	                requestAnimationFrame(animate);
+
+	                render();
+
+	            }
+
+            	function render() {
+
+	               // camera.position.x -= 1;
+	               // camera.position.y += 1;
+	               // camera.position.x += .8;
+	               // camera.position.z -= 1;
+	               // console.log("Old: [" + camera.position.x + ", " + camera.position.y + "]");
+	               // camera.position.x = (mouseX) ;
+	               // camera.position.y = (-mouseY);
+	               // console.log("New: [" + camera.position.x + ", " + camera.position.y + "]");
+	                camera.lookAt(center);
+
+	                renderer.render(scene, camera);
+
+            	}
+            	function atualizaCamera () {
+            		var vetor = criarVetorDoTexto(htmlPosCam.value);
+            		camera.position.x = vetor.x;
+                    camera.position.y = vetor.y;
+                    camera.position.z = vetor.z;
+            	}
+				function atualizaInfoCamera () {
+					var x = Math.round(camera.position.x*10)/10;
+					var y = Math.round(camera.position.y*10)/10;
+					var z = Math.round(camera.position.z*10)/10;
+            		htmlPosCam.value = "("+ x + ", " + y + ", " + z +")";
+            	}
+
+            	function alternarContrCamera () {
+            		var contrCamera = document.getElementById('contrCamera');
+            		var divs = contrCamera.getElementsByTagName('div');
+            		for (var i = 0; i < divs.length; i++) {
+            			var div = divs[i];
+            			div.style['display'] = div.style['display'] == 'none' ? 'block' : 'none';
+            		}
+            	}
+
+            	function atualizarDirCamera (argument) {
+            		var vetor = criarVetorDoTexto(htmlDirCam.value);
+            		center.setX(vetor.x);
+            		center.setY(vetor.y);
+            		center.setZ(vetor.z);
+            		camera.lookAt(center);
+            	}
+
+				function atualizaInfoDirCamera () {
+					var x = Math.round(center.x*10)/10;
+					var y = Math.round(center.y*10)/10;
+					var z = Math.round(center.z*10)/10;
+            		htmlDirCam.value = "("+ x + ", " + y + ", " + z +")";
+            	}
+
+
+            	function rotate ( delta ) {
+
+					//var center = new THREE.Vetor3D(0,0,0);
+					//var vector = new THREE.Vetor3D(0,0,0);
+					vector.copy( camera.position ).sub( center );
+
+					var theta = Math.atan2( vector.x, vector.z );
+					var phi = Math.atan2( Math.sqrt( vector.x * vector.x + vector.z * vector.z ), vector.y );
+
+					theta += delta.x;
+					phi += delta.y;
+
+					var EPS = 0.000001;
+
+					phi = Math.max( EPS, Math.min( Math.PI - EPS, phi ) );
+
+					var radius = vector.length();
+
+					vector.x = radius * Math.sin( phi ) * Math.sin( theta );
+					vector.y = radius * Math.cos( phi );
+					vector.z = radius * Math.sin( phi ) * Math.cos( theta );
+
+					camera.position.copy( center ).add( vector );
+
+					camera.lookAt( center );
+
+					atualizaInfoCamera();
+					atualizaInfoDirCamera();
+					//scope.dispatchEvent( changeEvent );
+
+				};
+
+
+				this.pan = function ( distance ) {
+
+					normalMatrix.getNormalMatrix( camera.matrix );
+
+					distance.applyMatrix3( normalMatrix );
+					distance.multiplyScalar( vector.copy( center ).sub( camera.position ).length() * 0.001 );
+
+					camera.position.add( distance );
+					center.add( distance );
+
+					atualizaInfoCamera();
+					atualizaInfoDirCamera();
+
+				};
+
+				this.zoom = function ( distance ) {
+
+					normalMatrix.getNormalMatrix( camera.matrix );
+
+					distance.applyMatrix3( normalMatrix );
+					distance.multiplyScalar( vector.copy( center ).sub( camera.position ).length() * 0.001 );
+
+					camera.position.add( distance );
+
+					atualizaInfoCamera();
+					atualizaInfoDirCamera();
+
+				};
+
+
+				function onMouseDown( event ) {
+
+					if ( scope.enabled === false ) return;
+
+					event.preventDefault();
+
+					if ( event.button === 0 ) {
+
+						state = STATE.ROTATE;
+
+					} else if ( event.button === 1 ) {
+
+						state = STATE.ZOOM;
+
+					} else if ( event.button === 2 ) {
+
+						state = STATE.PAN;
+
+					}
+
+					pointerOld.set( event.clientX, event.clientY );
+
+					dCanvas.addEventListener( 'mousemove', onMouseMove, false );
+					dCanvas.addEventListener( 'mouseup', onMouseUp, false );
+					dCanvas.addEventListener( 'mouseout', onMouseUp, false );
+
+				}
+
+				function onMouseMove( event ) {
+
+					if ( scope.enabled === false ) return;
+
+					event.preventDefault();
+
+					pointer.set( event.clientX, event.clientY );
+
+					var movementX = pointer.x - pointerOld.x;
+					var movementY = pointer.y - pointerOld.y;
+
+					if ( state === STATE.ROTATE ) {
+
+						scope.rotate( new THREE.Vector3( - movementX * 0.005, - movementY * 0.005, 0 ) );
+
+					} else if ( state === STATE.ZOOM ) {
+
+						scope.zoom( new THREE.Vector3( 0, 0, movementY ) );
+
+					} else if ( state === STATE.PAN ) {
+
+						scope.pan( new THREE.Vector3( - movementX, movementY, 0 ) );
+
+					}
+
+					pointerOld.set( event.clientX, event.clientY );
+
+				}
+
+				function onMouseUp( event ) {
+
+					if ( scope.enabled === false ) return;
+
+					dCanvas.removeEventListener( 'mousemove', onMouseMove, false );
+					dCanvas.removeEventListener( 'mouseup', onMouseUp, false );
+					dCanvas.removeEventListener( 'mouseout', onMouseUp, false );
+
+					state = STATE.NONE;
+
+				}
+
+				function onMouseWheel( event ) {
+
+					// if ( scope.enabled === false ) return;
+
+					var delta = 0;
+
+					if ( event.wheelDelta ) { // WebKit / Opera / Explorer 9
+
+						delta = - event.wheelDelta;
+
+					} else if ( event.detail ) { // Firefox
+
+						delta = event.detail * 10;
+
+					}
+
+					scope.zoom( new THREE.Vector3( 0, 0, delta ) );
+
+				}
+
+				
+
+
+        	</script>

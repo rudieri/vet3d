@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+	<% include ../header %>
+	<body>
+		<link rel="stylesheet" type="text/css" href="/public/stylesheets/style.css"/>
+		<script type="text/javascript">
+		function verificarSenhas () {
+			var senha1 = document.getElementById('senha1').value;
+			var senha2 = document.getElementById('senha2').value;
+			document.getElementById('bt_cad').disabled = senha1 !== senha2 || senha1 === "";
+		}
+		</script>
+		<% include ../erros/f_erro %>
+
+		<section>
+		
+		<div id="top">
+			
+				<form action="/entrar" method="post">
+					<input type="text" name="usuario[email]" placeholder="Seu e-mail"/>
+					<br/>
+					<input type="password" name="usuario[senha]" placeholder="Sua senha"/>
+					<br/>
+					<button type="submit">Entrar</button>
+					
+				</form>
+			
+		</div>
+
+		<div id="desc">
+		
+		</div>
+		
+		<div id="reg">
+			<span class="esq">
+				<h2>Cadastre-se!!!</h2>
+			</span>
+			<form action="/cadastro" method="post">
+				<label>Nome: </label><input type="text" name="usuario[nome]" placeholder="Seu nome"/>
+				<br/>
+				
+				<label>E-mail: </label><input type="text" name="usuario[email]" placeholder="Seu e-mail"/>
+				<br/>
+				<label>Senha: </label><input id="senha1" type="password" name="usuario[senha]" onkeyup="verificarSenhas();" />
+				<br/>
+				<label>Repetir senha: </label><input id="senha2" type="password" onkeyup="verificarSenhas();" />
+				
+				<button id="bt_cad" type="submit">Cadastrar</button>
+
+
+			</form>
+		</div>
+			
+		</section>
+		<!--<% include ../footer %>-->
+	</body>
+</html>
